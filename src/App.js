@@ -11,12 +11,16 @@ class App extends React.Component {
     value: Value.fromJSON(SlateInitialValueSimple)
   };
   onChange = ({ value }) => {
+    console.log(value);
     this.setState({ value });
   };
   onKeyDown = (event, editor, next) => {
-    if (event.key != '&') return next();
+    if (event.key !== '`' || !event.ctrlKey) return next();
     event.preventDefault();
-    editor.insertText('and');
+    // Determine whether any of the currently selected blocks are code blocks.
+    const isCode = editor.value.blocks.some(block => block.type === 'code');
+    // Toggle the block type depending on `isCode`.
+    editor.setBlocks(isCode ? 'paragraph' : 'code');
   };
   renderNode = (props, editor, next) => {
     switch (props.node.type) {
@@ -35,8 +39,8 @@ class App extends React.Component {
           </a>
         </nav>
 
-        <div className="container-fluid pb-5">
-          <div className="row">
+        <div className="container-fluid">
+          <div className="row" style={{ marginTop: '5%' }}>
             <div className="col-md-12">
               <Editor value={this.state.value} onChange={this.onChange} onKeyDown={this.onKeyDown} />
             </div>
