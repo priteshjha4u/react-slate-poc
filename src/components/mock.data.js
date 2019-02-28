@@ -1,4 +1,4 @@
-export const SlateInitialValueSimple = {
+export const initialValueSimple = {
   document: {
     nodes: [
       {

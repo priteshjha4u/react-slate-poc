@@ -4,28 +4,49 @@ import './App.css';
 import { Editor } from 'slate-react';
 import { Value } from 'slate';
 import { CodeNode } from './components/nodes.component';
-import { SlateInitialValueSimple } from './components/mock.data';
+import { BoldMark } from './components/marks.component';
+import { initialValueSimple } from './components/mock.data';
+
+const initialValue = Value.fromJSON(initialValueSimple);
 
 class App extends React.Component {
   state = {
-    value: Value.fromJSON(SlateInitialValueSimple)
+    value: initialValue
   };
   onChange = ({ value }) => {
-    console.log(value);
+    // console.log(value.toJSON());
     this.setState({ value });
   };
   onKeyDown = (event, editor, next) => {
-    if (event.key !== '`' || !event.ctrlKey) return next();
-    event.preventDefault();
-    // Determine whether any of the currently selected blocks are code blocks.
-    const isCode = editor.value.blocks.some(block => block.type === 'code');
-    // Toggle the block type depending on `isCode`.
-    editor.setBlocks(isCode ? 'paragraph' : 'code');
+    if (!event.ctrlKey) return next();
+    console.log(event.key);
+    switch (event.key) {
+      case 'b': {
+        event.preventDefault();
+        editor.toggleMark('bold');
+      }
+      case '`': {
+        const isCode = editor.value.blocks.some(block => block.type === 'code');
+        event.preventDefault();
+        editor.setBlocks(isCode ? 'paragraph' : 'code');
+      }
+      default: {
+        return next();
+      }
+    }
   };
   renderNode = (props, editor, next) => {
     switch (props.node.type) {
       case 'code':
         return <CodeNode {...props} />;
+      default:
+        return next();
+    }
+  };
+  renderMark = (props, editor, next) => {
+    switch (props.mark.type) {
+      case 'bold':
+        return <BoldMark {...props} />;
       default:
         return next();
     }
