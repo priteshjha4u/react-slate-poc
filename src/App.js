@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { Editor } from 'slate-react';
 import { Value } from 'slate';
+import { CodeNode } from './components/nodes.component';
 import { SlateInitialValueSimple } from './components/mock.data';
 
 class App extends React.Component {
@@ -13,8 +14,17 @@ class App extends React.Component {
     this.setState({ value });
   };
   onKeyDown = (event, editor, next) => {
-    console.log(event.key);
-    return next();
+    if (event.key != '&') return next();
+    event.preventDefault();
+    editor.insertText('and');
+  };
+  renderNode = (props, editor, next) => {
+    switch (props.node.type) {
+      case 'code':
+        return <CodeNode {...props} />;
+      default:
+        return next();
+    }
   };
   render() {
     return (
