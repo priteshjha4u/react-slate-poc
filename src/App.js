@@ -12,6 +12,10 @@ class App extends React.Component {
   onChange = ({ value }) => {
     this.setState({ value });
   };
+  onKeyDown = (event, editor, next) => {
+    console.log(event.key);
+    return next();
+  };
   render() {
     return (
       <React.Fragment>
@@ -24,7 +28,7 @@ class App extends React.Component {
         <div className="container-fluid pb-5">
           <div className="row">
             <div className="col-md-12">
-              <Editor value={this.state.value} onChange={this.onChange} />
+              <Editor value={this.state.value} onChange={this.onChange} onKeyDown={this.onKeyDown} />
             </div>
           </div>
         </div>
