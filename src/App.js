@@ -4,7 +4,8 @@ import './App.css';
 import { Editor } from 'slate-react';
 import { Value } from 'slate';
 import { CodeNode } from './components/nodes.component';
-import { BoldMark } from './components/marks.component';
+import { BoldMark, ItalicMark, UnderlineMark } from './components/marks.component';
+import AllPlugins from './plugins/main';
 import { initialValueSimple } from './components/mock.data';
 
 const initialValue = Value.fromJSON(initialValueSimple);
@@ -49,6 +50,10 @@ class App extends React.Component {
     switch (props.mark.type) {
       case 'bold':
         return <BoldMark {...props} />;
+      case 'italic':
+        return <ItalicMark {...props} />;
+      case 'underline':
+        return <UnderlineMark {...props} />;
       default:
         return next();
     }
@@ -65,7 +70,7 @@ class App extends React.Component {
         <div className="container-fluid">
           <div className="row" style={{ marginTop: '5%' }}>
             <div className="col-md-12">
-              <Editor value={this.state.value} onChange={this.onChange} onKeyDown={this.onKeyDown} renderNode={this.renderNode} renderMark={this.renderMark} />
+              <Editor value={this.state.value} onChange={this.onChange} onKeyDown={this.onKeyDown} renderNode={this.renderNode} renderMark={this.renderMark} plugins={AllPlugins} />
             </div>
           </div>
         </div>
