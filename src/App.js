@@ -12,11 +12,24 @@ const initialValue = Value.fromJSON(initialValueSimple);
 
 class App extends React.Component {
   state = {
-    value: initialValue
+    value: initialValue,
+    revision: 0
   };
+
+  componentDidMount() {
+    this.setState({ value: initialValue, revision: 1 });
+    const content = JSON.stringify(initialValue.toJSON());
+    localStorage.setItem(`editior-revision-1`, content);
+  }
+
   onChange = ({ value }) => {
-    // console.log(value.toJSON());
-    this.setState({ value });
+    if (value.document !== this.state.value.document) {
+      this.setState({ value, revision: this.state.revision + 1 }, () => {
+        const content = JSON.stringify(value.toJSON());
+        localStorage.setItem(`editior-revision-${this.state.revision}`, content);
+        localStorage.setItem(`editior-last-revision`, content);
+      });
+    }
   };
   onKeyDown = (event, editor, next) => {
     if (!event.ctrlKey) return next();
@@ -58,6 +71,20 @@ class App extends React.Component {
         return next();
     }
   };
+  getRevision = r => {
+    const data = JSON.parse(localStorage.getItem(`editior-revision-${r}`) || 'null');
+    if (data) {
+      this.setState({ value: Value.fromJSON(data) });
+    }
+    if (!r && this.state.revision > 1) {
+      const arr = [];
+      for (let i = 1; i < this.state.revision; i++) {
+        arr.push(i);
+      }
+      return arr;
+    }
+    return null;
+  };
   render() {
     return (
       <React.Fragment>
@@ -68,10 +95,43 @@ class App extends React.Component {
         </nav>
 
         <div className="container-fluid">
-          <div className="row" style={{ marginTop: '5%' }}>
-            <div className="col-md-12">
-              <Editor value={this.state.value} onChange={this.onChange} onKeyDown={this.onKeyDown} renderNode={this.renderNode} renderMark={this.renderMark} plugins={AllPlugins} />
-            </div>
+          <div className="row">
+            <nav className="col-md-2 d-none d-md-block bg-light sidebar">
+              <div className="sidebar-sticky">
+                <h6 className="sidebar-heading d-flex justify-content-center align-items-center px-3 mb-2 text-muted">
+                  <span>History</span>
+                </h6>
+                {this.state.revision > 1 ? (
+                  <ul className="list-group">
+                    {this.getRevision().map(r => (
+                      <li
+                        key={r}
+                        className="list-group-item"
+                        onClick={() => {
+                          this.getRevision(r);
+                        }}
+                      >
+                        revision-{r}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-center">No revisions.</p>
+                )}
+              </div>
+            </nav>
+            <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-4">
+              <div className="d-flex justify-content-left flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                <Editor
+                  value={this.state.value}
+                  onChange={this.onChange}
+                  onKeyDown={this.onKeyDown}
+                  renderNode={this.renderNode}
+                  renderMark={this.renderMark}
+                  plugins={AllPlugins}
+                />
+              </div>
+            </main>
           </div>
         </div>
       </React.Fragment>
