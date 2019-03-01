@@ -13,24 +13,27 @@ const initialValue = Value.fromJSON(initialValueSimple);
 class App extends React.Component {
   state = {
     value: initialValue,
-    revision: 0
+    revision: 0,
+    saved: true
   };
 
   componentDidMount() {
-    this.setState({ value: initialValue, revision: 1 });
-    const content = JSON.stringify(initialValue.toJSON());
-    localStorage.setItem(`editior-revision-1`, content);
+    localStorage.clear();
   }
 
   onChange = ({ value }) => {
     if (value.document !== this.state.value.document) {
-      this.setState({ value, revision: this.state.revision + 1 }, () => {
-        const content = JSON.stringify(value.toJSON());
-        localStorage.setItem(`editior-revision-${this.state.revision}`, content);
-        localStorage.setItem(`editior-last-revision`, content);
-      });
+      this.setState({ value, saved: false });
     }
   };
+
+  saveChanges = () => {
+    this.setState({ revision: this.state.revision + 1, saved: true }, () => {
+      const content = JSON.stringify(this.state.value.toJSON());
+      localStorage.setItem(`editior-revision-${this.state.revision}`, content);
+    });
+  };
+
   onKeyDown = (event, editor, next) => {
     if (!event.ctrlKey) return next();
     // console.log(event.key);
@@ -51,6 +54,7 @@ class App extends React.Component {
       }
     }
   };
+
   renderNode = (props, editor, next) => {
     switch (props.node.type) {
       case 'code':
@@ -59,6 +63,7 @@ class App extends React.Component {
         return next();
     }
   };
+
   renderMark = (props, editor, next) => {
     switch (props.mark.type) {
       case 'bold':
@@ -71,20 +76,22 @@ class App extends React.Component {
         return next();
     }
   };
+
   getRevision = r => {
     const data = JSON.parse(localStorage.getItem(`editior-revision-${r}`) || 'null');
     if (data) {
       this.setState({ value: Value.fromJSON(data) });
     }
-    if (!r && this.state.revision > 1) {
+    if (!r && this.state.revision > 0) {
       const arr = [];
-      for (let i = 1; i < this.state.revision; i++) {
+      for (let i = 1; i <= this.state.revision; i++) {
         arr.push(i);
       }
       return arr;
     }
     return null;
   };
+
   render() {
     return (
       <React.Fragment>
@@ -92,6 +99,9 @@ class App extends React.Component {
           <a className="navbar-brand col-sm-3 col-md-2 mr-0" href="/">
             React Slate POC
           </a>
+          <button className="btn btn-sm btn-success mr-2" onClick={this.saveChanges} disabled={this.state.saved}>
+            Save Changes
+          </button>
         </nav>
 
         <div className="container-fluid">
@@ -101,7 +111,7 @@ class App extends React.Component {
                 <h6 className="sidebar-heading d-flex justify-content-center align-items-center px-3 mb-2 text-muted">
                   <span>History</span>
                 </h6>
-                {this.state.revision > 1 ? (
+                {this.state.revision > 0 ? (
                   <ul className="list-group">
                     {this.getRevision().map(r => (
                       <li
