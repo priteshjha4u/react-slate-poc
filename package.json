@@ -25,5 +25,15 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+	"author": {
+    "name": "Pritesh Jha",
+    "email": "priteshjha4u@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/priteshjha4u/react-slate-poc"
+  },
+  "homepage": "https://priteshjha4u.github.io/react-slate-poc",
+  "license": "MIT"
 }
