@@ -19,16 +19,18 @@ class App extends React.Component {
   };
   onKeyDown = (event, editor, next) => {
     if (!event.ctrlKey) return next();
-    console.log(event.key);
+    // console.log(event.key);
     switch (event.key) {
       case 'b': {
         event.preventDefault();
         editor.toggleMark('bold');
+        break;
       }
       case '`': {
         const isCode = editor.value.blocks.some(block => block.type === 'code');
         event.preventDefault();
         editor.setBlocks(isCode ? 'paragraph' : 'code');
+        break;
       }
       default: {
         return next();
@@ -55,7 +57,7 @@ class App extends React.Component {
     return (
       <React.Fragment>
         <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-          <a className="navbar-brand col-sm-3 col-md-2 mr-0" href="#">
+          <a className="navbar-brand col-sm-3 col-md-2 mr-0" href="/">
             React Slate POC
           </a>
         </nav>
@@ -63,7 +65,7 @@ class App extends React.Component {
         <div className="container-fluid">
           <div className="row" style={{ marginTop: '5%' }}>
             <div className="col-md-12">
-              <Editor value={this.state.value} onChange={this.onChange} onKeyDown={this.onKeyDown} />
+              <Editor value={this.state.value} onChange={this.onChange} onKeyDown={this.onKeyDown} renderNode={this.renderNode} renderMark={this.renderMark} />
             </div>
           </div>
         </div>
